@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RR.Common\RR.Common.csproj" />
+    <ProjectReference Include="..\RR.Entity\RR.Entity.csproj" />
+    <ProjectReference Include="..\RR.Model\RR.Model.csproj" />
+    <ProjectReference Include="..\RR.Repository\RR.Repository.csproj" />
+    <ProjectReference Include="..\RR.Service\RR.Service.csproj" />
+  </ItemGroup>
+
+</Project>

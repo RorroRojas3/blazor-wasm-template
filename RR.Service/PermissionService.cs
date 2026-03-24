@@ -1,34 +1,23 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
-using RR.Api.Auth;
-using RR.Api.Models;
+using Microsoft.Extensions.Logging;
+using RR.Common.Auth;
+using RR.Common.DTOs;
+using RR.Model;
 
-namespace RR.Api.Services;
+namespace RR.Service;
 
 /// <summary>
 /// Singleton service that stores all user permissions in memory.
 /// Data is loaded at application startup and served from a <see cref="ConcurrentDictionary{TKey,TValue}"/>
 /// so that lookups are synchronous and thread-safe.
 /// </summary>
-public sealed class PermissionService(ILogger<PermissionService> logger)
+public sealed class PermissionService(ILogger<PermissionService> logger) : IPermissionService
 {
-    /// <summary>
-    /// Internal mutable storage per user. Never exposed outside this class.
-    /// </summary>
-    private sealed class MutableUserPermissions
-    {
-        public required HashSet<AppRole> Roles { get; init; }
-        public required HashSet<AppPermission> Permissions { get; init; }
-    }
-
-    private readonly ConcurrentDictionary<string, MutableUserPermissions> _cache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, CachedUserPermissions> _cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ILogger<PermissionService> _logger = logger;
 
-
-    /// <summary>
-    /// Loads all user permissions into memory. Called once at application startup.
-    /// Replace the seed data below with real database calls in production.
-    /// </summary>
+    /// <inheritdoc />
     public Task LoadAllAsync()
     {
         _logger.LogInformation("Loading all user permissions into memory...");
@@ -38,7 +27,7 @@ public sealed class PermissionService(ILogger<PermissionService> logger)
         // Keys are Entra Object IDs (the "oid" claim from the JWT).
         // ──────────────────────────────────────────────────────────────
 
-        var seedData = new Dictionary<string, MutableUserPermissions>(StringComparer.OrdinalIgnoreCase)
+        var seedData = new Dictionary<string, CachedUserPermissions>(StringComparer.OrdinalIgnoreCase)
         {
             // Sample admin user
             ["00000000-0000-0000-0000-000000000001"] = new()
@@ -89,10 +78,7 @@ public sealed class PermissionService(ILogger<PermissionService> logger)
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Synchronous lookup — returns a read-only snapshot of the user's permissions,
-    /// or <c>null</c> if the user has no entry in the store.
-    /// </summary>
+    /// <inheritdoc />
     public UserPermissionData? GetPermissions(string userId)
     {
         if (!_cache.TryGetValue(userId, out var data))
@@ -102,14 +88,12 @@ public sealed class PermissionService(ILogger<PermissionService> logger)
 
         return new UserPermissionData
         {
-            Roles = data.Roles.ToFrozenSet(),
-            Permissions = data.Permissions.ToFrozenSet()
+            Roles = data.Roles.ToFrozenSet().ToHashSet(),
+            Permissions = data.Permissions.ToFrozenSet().ToHashSet()
         };
     }
 
-    /// <summary>
-    /// Clears and reloads all user permissions from the data store.
-    /// </summary>
+    /// <inheritdoc />
     public async Task ReloadAllAsync()
     {
         _logger.LogInformation("Reloading all user permissions...");
@@ -117,10 +101,7 @@ public sealed class PermissionService(ILogger<PermissionService> logger)
         await LoadAllAsync();
     }
 
-    /// <summary>
-    /// Reloads a single user's permissions from the data store.
-    /// In production, this would query the database for the specific user.
-    /// </summary>
+    /// <inheritdoc />
     public Task ReloadUserAsync(string userId)
     {
         _logger.LogInformation("Reloading permissions for user {UserId}.", userId);
@@ -133,9 +114,7 @@ public sealed class PermissionService(ILogger<PermissionService> logger)
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Removes a single user from the in-memory cache.
-    /// </summary>
+    /// <inheritdoc />
     public void InvalidateUser(string userId)
     {
         if (_cache.TryRemove(userId, out _))
@@ -144,9 +123,7 @@ public sealed class PermissionService(ILogger<PermissionService> logger)
         }
     }
 
-    /// <summary>
-    /// Clears the entire in-memory permission cache.
-    /// </summary>
+    /// <inheritdoc />
     public void InvalidateAll()
     {
         _cache.Clear();
