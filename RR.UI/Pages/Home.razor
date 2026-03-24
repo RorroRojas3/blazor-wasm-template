@@ -1,7 +1,60 @@
-﻿@page "/"
+@page "/"
+@attribute [Authorize]
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Welcome</h1>
 
-Welcome to your new app.
+<p>You are authenticated and your permissions have been loaded from the backend API.</p>
+
+@if (Perms is not null)
+{
+    <div class="row mt-4">
+        <div class="col-md-4 mb-3">
+            <div class="card text-bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">@Perms.Roles.Count</h5>
+                    <p class="card-text">Active Roles</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card text-bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">@Perms.Permissions.Count</h5>
+                    <p class="card-text">Active Permissions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <RequirePermission Role="AppRole.Admin">
+        <div class="alert alert-info mt-3">
+            <strong>Admin Panel:</strong> You have the Admin role. You can manage all application settings.
+        </div>
+    </RequirePermission>
+
+    <RequirePermission Permission="AppPermission.ReportsExport">
+        <div class="alert alert-success mt-3">
+            <strong>Reports:</strong> You can export reports.
+            <button class="btn btn-sm btn-outline-success ms-2">Export Report</button>
+        </div>
+    </RequirePermission>
+
+    <RequirePermission Roles="[AppRole.Admin, AppRole.Manager]">
+        <div class="alert alert-warning mt-3">
+            <strong>Management:</strong> This section is visible to Admins and Managers.
+        </div>
+    </RequirePermission>
+
+    <RequirePermission Permissions="[AppPermission.UsersRead, AppPermission.UsersWrite]" RequireAll="true">
+        <div class="alert alert-secondary mt-3">
+            <strong>User Management:</strong> You have both read and write access to user data.
+        </div>
+    </RequirePermission>
+}
+
+@code {
+    [CascadingParameter]
+    private UserPermissions? Perms { get; set; }
+}

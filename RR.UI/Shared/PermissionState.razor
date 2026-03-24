@@ -1,0 +1,62 @@
+@using RR.UI.Auth
+@inject PermissionService PermissionService
+
+@if (_error is not null)
+{
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <div class="flex-grow-1">
+            <strong>Failed to load permissions:</strong> @_error
+        </div>
+        <button class="btn btn-outline-danger btn-sm ms-3" @onclick="RetryAsync">Retry</button>
+    </div>
+}
+else if (!_loaded)
+{
+    <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-primary me-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <span>Loading permissions...</span>
+    </div>
+}
+else
+{
+    <CascadingValue Value="_permissions">
+        @ChildContent
+    </CascadingValue>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private UserPermissions? _permissions;
+    private bool _loaded;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPermissionsAsync();
+    }
+
+    private async Task LoadPermissionsAsync()
+    {
+        try
+        {
+            _error = null;
+            _loaded = false;
+            _permissions = await PermissionService.GetPermissionsAsync();
+            _loaded = true;
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private async Task RetryAsync()
+    {
+        PermissionService.ClearCache();
+        await LoadPermissionsAsync();
+    }
+}

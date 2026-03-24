@@ -1,0 +1,139 @@
+@page "/permissions"
+@attribute [Authorize]
+@inject PermissionService PermissionService
+
+<PageTitle>Permissions</PageTitle>
+
+<h1>Permissions Dashboard</h1>
+
+<p>This page shows your current roles and permissions as loaded from the backend API.</p>
+
+<button class="btn btn-outline-primary mb-4" @onclick="RefreshPermissions" disabled="@_refreshing">
+    @if (_refreshing)
+    {
+        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+    }
+    Refresh from API
+</button>
+
+@if (Perms is not null)
+{
+    <div class="row">
+        <!-- Roles -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Roles</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                                <th class="text-center">Assigned</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in Enum.GetValues<AppRole>())
+                            {
+                                <tr>
+                                    <td>@role</td>
+                                    <td class="text-center">
+                                        @if (Perms.HasRole(role))
+                                        {
+                                            <span class="badge bg-success">Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">No</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Permissions -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Permissions</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Permission</th>
+                                <th class="text-center">Granted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var permission in Enum.GetValues<AppPermission>())
+                            {
+                                <tr>
+                                    <td>@permission</td>
+                                    <td class="text-center">
+                                        @if (Perms.HasPermission(permission))
+                                        {
+                                            <span class="badge bg-success">Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">No</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conditional UI sections -->
+    <h3 class="mt-3">Conditional UI Sections</h3>
+    <p class="text-muted">These sections only appear if you have the required permissions.</p>
+
+    <RequirePermission Role="AppRole.Admin">
+        <div class="alert alert-danger">
+            <strong>Admin Only:</strong> This section is only visible to users with the Admin role.
+        </div>
+    </RequirePermission>
+
+    <RequirePermission Permission="AppPermission.SettingsManage">
+        <div class="alert alert-info">
+            <strong>Settings:</strong> You can manage application settings.
+        </div>
+    </RequirePermission>
+
+    <RequirePermission Role="AppRole.Admin" Permission="AppPermission.SettingsManage" RequireAll="true">
+        <div class="alert alert-warning">
+            <strong>Admin + Settings:</strong> This section requires both the Admin role AND the SettingsManage permission.
+        </div>
+    </RequirePermission>
+
+    <RequirePermission Permissions="[AppPermission.ReportsView, AppPermission.ReportsExport]">
+        <div class="alert alert-success">
+            <strong>Reports:</strong> You have at least one reports permission (View or Export).
+        </div>
+    </RequirePermission>
+}
+
+@code {
+    [CascadingParameter]
+    private UserPermissions? Perms { get; set; }
+
+    private bool _refreshing;
+
+    private async Task RefreshPermissions()
+    {
+        _refreshing = true;
+        await PermissionService.RefreshAsync();
+        Perms = await PermissionService.GetPermissionsAsync();
+        _refreshing = false;
+    }
+}

@@ -1,0 +1,48 @@
+@page "/authentication/{action}"
+
+<RemoteAuthenticatorView Action="@Action">
+    <LogInFailed>
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Login Failed</h4>
+            <p>An error occurred during authentication. Please try again.</p>
+            <a href="/" class="btn btn-outline-danger">Return Home</a>
+        </div>
+    </LogInFailed>
+    <LoggingIn>
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-primary me-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Signing you in...</span>
+        </div>
+    </LoggingIn>
+    <LogOut>
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-secondary me-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Signing you out...</span>
+        </div>
+    </LogOut>
+    <CompletingLoggingIn>
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-success me-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Completing sign-in...</span>
+        </div>
+    </CompletingLoggingIn>
+    <CompletingLogOut>
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-secondary me-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span>Completing sign-out...</span>
+        </div>
+    </CompletingLogOut>
+</RemoteAuthenticatorView>
+
+@code {
+    [Parameter]
+    public string? Action { get; set; }
+}

@@ -1,0 +1,85 @@
+@using RR.UI.Auth
+
+@* Conditionally renders child content based on the user's permissions and roles. *@
+@if (IsAuthorized)
+{
+    @ChildContent
+}
+
+@code {
+    /// <summary>Cascaded from <see cref="PermissionState"/>.</summary>
+    [CascadingParameter]
+    public UserPermissions? UserPermissions { get; set; }
+
+    /// <summary>Single permission to check.</summary>
+    [Parameter]
+    public AppPermission? Permission { get; set; }
+
+    /// <summary>Multiple permissions — user must have <b>any</b> (or <b>all</b> if <see cref="RequireAll"/> is true).</summary>
+    [Parameter]
+    public AppPermission[]? Permissions { get; set; }
+
+    /// <summary>Single role to check.</summary>
+    [Parameter]
+    public AppRole? Role { get; set; }
+
+    /// <summary>Multiple roles — user must have <b>any</b> (or <b>all</b> if <see cref="RequireAll"/> is true).</summary>
+    [Parameter]
+    public AppRole[]? Roles { get; set; }
+
+    /// <summary>
+    /// When <c>true</c>, the user must satisfy <b>all</b> specified conditions.
+    /// When <c>false</c> (default), satisfying <b>any</b> condition is enough.
+    /// </summary>
+    [Parameter]
+    public bool RequireAll { get; set; }
+
+    /// <summary>Content rendered when the permission check passes.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool IsAuthorized
+    {
+        get
+        {
+            if (UserPermissions is null)
+            {
+                return false;
+            }
+
+            var checks = new List<bool>();
+
+            if (Permission.HasValue)
+            {
+                checks.Add(UserPermissions.HasPermission(Permission.Value));
+            }
+
+            if (Permissions is { Length: > 0 })
+            {
+                checks.Add(RequireAll
+                    ? UserPermissions.HasAllPermissions(Permissions)
+                    : UserPermissions.HasAnyPermission(Permissions));
+            }
+
+            if (Role.HasValue)
+            {
+                checks.Add(UserPermissions.HasRole(Role.Value));
+            }
+
+            if (Roles is { Length: > 0 })
+            {
+                checks.Add(RequireAll
+                    ? UserPermissions.HasAllRoles(Roles)
+                    : UserPermissions.HasAnyRole(Roles));
+            }
+
+            // No checks specified — deny by default
+            if (checks.Count is 0)
+            {
+                return false;
+            }
+
+            return RequireAll ? checks.All(c => c) : checks.Any(c => c);
+        }
+    }
+}

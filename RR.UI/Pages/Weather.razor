@@ -1,13 +1,14 @@
-﻿@page "/weather"
+@page "/weather"
+@attribute [Authorize]
 @inject HttpClient Http
 
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
 
-<p>This component demonstrates fetching data from the server.</p>
+<p>This component demonstrates fetching data from the authenticated backend API.</p>
 
-@if (forecasts == null)
+@if (forecasts is null)
 {
     <p><em>Loading...</em></p>
 }
