@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RR.Api/RR.Api.csproj" />
+  <Project Path="RR.UI/RR.UI.csproj" />
+</Solution>
