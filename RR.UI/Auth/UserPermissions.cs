@@ -1,3 +1,5 @@
+using RR.Common.Auth;
+
 namespace RR.UI.Auth;
 
 /// <summary>

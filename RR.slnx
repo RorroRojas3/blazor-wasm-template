@@ -1,4 +1,11 @@
 <Solution>
   <Project Path="RR.Api/RR.Api.csproj" />
   <Project Path="RR.UI/RR.UI.csproj" />
+  <Project Path="RR.Common/RR.Common.csproj" />
+  <Project Path="RR.Entity/RR.Entity.csproj" />
+  <Project Path="RR.Repository/RR.Repository.csproj" />
+  <Project Path="RR.Model/RR.Model.csproj" />
+  <Project Path="RR.Service/RR.Service.csproj" />
+  <Project Path="RR.UnitTests/RR.UnitTests.csproj" />
+  <Project Path="RR.IntegrationTests/RR.IntegrationTests.csproj" />
 </Solution>

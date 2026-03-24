@@ -1,7 +1,10 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using RR.Api.Services;
+using RR.Api.Endpoints;
+using RR.Repository;
+using RR.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,12 +14,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Controllers with JSON enum-as-string serialization
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+// JSON enum-as-string serialization for minimal API endpoints
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // CORS — allow the Blazor WASM frontend origins
 builder.Services.AddCors(options =>
@@ -27,8 +29,12 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
+// Entity Framework Core — Azure SQL Database
+builder.Services.AddDbContext<SampleContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 // Permission store — singleton, loaded at startup
-builder.Services.AddSingleton<PermissionService>();
+builder.Services.AddSingleton<IPermissionService, PermissionService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -45,36 +51,18 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
 
-// Existing weather forecast minimal API endpoint
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.RequireAuthorization();
+// Map minimal API endpoints
+app.MapPermissionEndpoints();
+app.MapWeatherEndpoints();
 
 // Load all permissions into memory before accepting requests
-var permissionService = app.Services.GetRequiredService<PermissionService>();
+var permissionService = app.Services.GetRequiredService<IPermissionService>();
 await permissionService.LoadAllAsync();
 
 await app.RunAsync();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+/// <summary>
+/// Partial class to enable <see cref="Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory{TEntryPoint}"/> in integration tests.
+/// </summary>
+public partial class Program;
