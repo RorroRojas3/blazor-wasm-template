@@ -1,7 +1,15 @@
+@using System.Net
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using RR.UI.Auth
 @inject PermissionService PermissionService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
 
-@if (_error is not null)
+@if (!_authenticated)
+{
+    @ChildContent
+}
+else if (_error is not null)
 {
     <div class="alert alert-danger d-flex align-items-center" role="alert">
         <div class="flex-grow-1">
@@ -32,11 +40,18 @@ else
 
     private UserPermissions? _permissions;
     private bool _loaded;
+    private bool _authenticated;
     private string? _error;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadPermissionsAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _authenticated = authState.User.Identity?.IsAuthenticated == true;
+
+        if (_authenticated)
+        {
+            await LoadPermissionsAsync();
+        }
     }
 
     private async Task LoadPermissionsAsync()
@@ -47,6 +62,16 @@ else
             _loaded = false;
             _permissions = await PermissionService.GetPermissionsAsync();
             _loaded = true;
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            // Token not available — redirect to MSAL login
+            ex.Redirect();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            // API rejected the token — force re-authentication
+            Navigation.NavigateToLogin("authentication/login");
         }
         catch (Exception ex)
         {

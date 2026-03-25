@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch API",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build-api",
+      "program": "${workspaceFolder}/RR.Api/bin/Debug/net10.0/RR.Api.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/RR.Api",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "https://localhost:7111"
+      },
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Launch UI",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "serve-ui",
+      "url": "https://localhost:7096",
+      "webRoot": "${workspaceFolder}/RR.UI/wwwroot",
+      "inspectUri": "{wsProtocol}://localhost:7096/_framework/debug/ws-proxy?browser={browserInspectUri}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Launch API + UI",
+      "configurations": [
+        "Launch API",
+        "Launch UI"
+      ],
+      "stopAll": true
+    }
+  ]
+}

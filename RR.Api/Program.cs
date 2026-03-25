@@ -10,7 +10,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Entra ID JWT Bearer authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true);
+
+// Accept both v1 (URI) and v2 (GUID) audience formats
+builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    var clientId = builder.Configuration["AzureAd:ClientId"]!;
+    options.TokenValidationParameters.ValidAudiences = [
+        clientId,
+        $"api://{clientId}"
+    ];
+});
 
 builder.Services.AddAuthorization();
 
