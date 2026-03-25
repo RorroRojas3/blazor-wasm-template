@@ -38,6 +38,19 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "stop-serve-ui",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-Command",
+        "Get-NetTCPConnection -LocalPort 7096 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent"
+      }
+    },
+    {
       "label": "serve-ui",
       "command": "dotnet",
       "type": "process",

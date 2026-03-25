@@ -23,7 +23,8 @@
       "preLaunchTask": "serve-ui",
       "url": "https://localhost:7096",
       "webRoot": "${workspaceFolder}/RR.UI/wwwroot",
-      "inspectUri": "{wsProtocol}://localhost:7096/_framework/debug/ws-proxy?browser={browserInspectUri}"
+      "inspectUri": "{wsProtocol}://localhost:7096/_framework/debug/ws-proxy?browser={browserInspectUri}",
+      "postDebugTask": "stop-serve-ui"
     }
   ],
   "compounds": [

@@ -37,8 +37,10 @@ public sealed class VersionCacheService(
             return false;
         }
 
+        
+        await _module.InvokeVoidAsync("clearNonMsalStorage");
         await _module.InvokeVoidAsync("setStoredVersion", currentVersion);
-
+    
         return true;
     }
 

@@ -8,9 +8,11 @@ using RR.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Entra ID JWT Bearer authentication
+// Entra ID JWT Bearer authentication — enable diagnostics only in Development
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, subscribeToJwtBearerMiddlewareDiagnosticsEvents: true);
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"), 
+    jwtBearerScheme: JwtBearerDefaults.AuthenticationScheme, 
+    subscribeToJwtBearerMiddlewareDiagnosticsEvents: builder.Environment.IsDevelopment());
 
 // Accept both v1 (URI) and v2 (GUID) audience formats
 builder.Services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
