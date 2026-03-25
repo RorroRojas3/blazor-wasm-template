@@ -66,6 +66,7 @@ app.UseAuthorization();
 
 // Map minimal API endpoints
 app.MapPermissionEndpoints();
+app.MapReferenceEndpoints();
 app.MapWeatherEndpoints();
 
 // Load all permissions into memory before accepting requests

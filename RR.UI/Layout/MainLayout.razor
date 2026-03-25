@@ -1,20 +1,35 @@
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
 
-    <main>
-        <div class="top-row px-4 auth">
-            <LoginDisplay />
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <main>
+                <div class="top-row px-4 auth">
+                    <LoginDisplay />
+                    <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+                </div>
+
+                <article class="content px-4">
+                    <PermissionState>
+                        @Body
+                    </PermissionState>
+                </article>
+            </main>
         </div>
-
-        <article class="content px-4">
-            <PermissionState>
-                @Body
-            </PermissionState>
-        </article>
-    </main>
-</div>
+    </Authorized>
+    <Authorizing>
+        <div class="app-loading">
+            <h4 class="app-loading-title">Blazor WebAssembly Template</h4>
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </Authorizing>
+    <NotAuthorized>
+        <RedirectToLogin />
+    </NotAuthorized>
+</AuthorizeView>

@@ -6,12 +6,7 @@
                     <RedirectToLogin />
                 </NotAuthorized>
                 <Authorizing>
-                    <div class="d-flex justify-content-center align-items-center py-5">
-                        <div class="spinner-border text-primary me-3" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <span>Checking authentication...</span>
-                    </div>
+                    @* Handled by MainLayout *@
                 </Authorizing>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />

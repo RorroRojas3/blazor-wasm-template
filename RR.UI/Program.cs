@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using RR.UI;
 using RR.UI.Auth;
 using RR.UI.Services;
+using RR.UI.Stores;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -34,6 +35,7 @@ builder.Services.AddHttpClient("RR.Api",
                 scopes: apiScopes));
 
 builder.Services.AddScoped<PermissionService>();
+builder.Services.AddScoped<ReferenceStore>();
 builder.Services.AddScoped<VersionCacheService>();
 
 // Plain HttpClient for local static files (e.g. sample-data)
