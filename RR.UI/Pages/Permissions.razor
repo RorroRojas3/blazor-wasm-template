@@ -1,5 +1,6 @@
 @page "/permissions"
 @attribute [Authorize]
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject PermissionService PermissionService
 
 <PageTitle>Permissions</PageTitle>
@@ -131,9 +132,19 @@
 
     private async Task RefreshPermissions()
     {
-        _refreshing = true;
-        await PermissionService.RefreshAsync();
-        Perms = await PermissionService.GetPermissionsAsync();
-        _refreshing = false;
+        try
+        {
+            _refreshing = true;
+            await PermissionService.RefreshAsync();
+            Perms = await PermissionService.GetPermissionsAsync();
+        }
+        catch (AccessTokenNotAvailableException ex)
+        {
+            ex.Redirect();
+        }
+        finally
+        {
+            _refreshing = false;
+        }
     }
 }

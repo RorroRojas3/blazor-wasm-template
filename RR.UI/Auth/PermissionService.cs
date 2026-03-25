@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using RR.Common.Auth;
 using RR.UI.Services;
 
