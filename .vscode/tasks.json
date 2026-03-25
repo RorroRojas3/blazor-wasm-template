@@ -56,10 +56,10 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": {
-            "regexp": "."
+            "regexp": "Using launch settings"
           },
           "endsPattern": {
-            "regexp": "Now listening on"
+            "regexp": "Content root path"
           }
         }
       }
