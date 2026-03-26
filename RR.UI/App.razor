@@ -6,7 +6,12 @@
                     <RedirectToLogin />
                 </NotAuthorized>
                 <Authorizing>
-                    @* Handled by MainLayout *@
+                    <div class="app-loading">
+                        <div class="spinner-border text-light" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span class="app-loading-status">Authorizing...</span>
+                    </div>
                 </Authorizing>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
