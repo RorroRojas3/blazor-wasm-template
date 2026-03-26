@@ -86,6 +86,33 @@ a, .btn-link {
     padding: 0 1rem;
 }
 
+.app-loading-status {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 400;
+    text-align: center;
+}
+
+.app-loading-error {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    color: #fff;
+    max-width: 400px;
+}
+
+.app-loading-error a {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.app-loading-error a:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
 code {
     color: #c02d76;
 }
